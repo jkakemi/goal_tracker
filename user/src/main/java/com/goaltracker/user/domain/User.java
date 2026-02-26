@@ -5,8 +5,9 @@ import com.goaltracker.user.domain.exception.InvalidEmailException;
 import com.goaltracker.user.domain.exception.PasswordInvalidException;
 import com.goaltracker.user.domain.exception.UserAlreadyInactiveException;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class User {
@@ -16,11 +17,16 @@ public class User {
     private String password;
     private double xpTotal;
     private int level;
-    private List<SkillsEnum> skills;
+    private Set<SkillsEnum> skills = new HashSet<>();
     private boolean active;
+    private Instant created_at;
+    private Instant updated_at;
+    private Instant deleted_at;
+
 
     public User(UUID id, String username, String email, String password, double xpTotal,
-                int level, List<SkillsEnum> skills, boolean active) {
+                int level, Set<SkillsEnum> skills, boolean active, Instant created_at,
+                Instant updated_at, Instant deleted_at) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -31,16 +37,18 @@ public class User {
         this.active = active;
     }
 
-    public User(UUID id, String username, String email, List<SkillsEnum> skills, String password) {
+    public User(UUID id, String username, String email, Set<SkillsEnum> skills, String password, Instant created_at) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.skills = skills;
         this.password = password;
         this.active = true;
+        this.created_at = created_at;
     }
 
-    public static User create(String username, String email, String password, List<SkillsEnum> skills) {
+    public static User create(String username, String email, String password, Set<SkillsEnum> skills) {
+        validateNotNullFields(email, username);
         validateEmail(email);
         validatePassword(password);
 
@@ -48,7 +56,8 @@ public class User {
                 normalizeEmail(email),
                 email,
                 skills,
-                password);
+                password,
+                Instant.now());
     }
 
     public void deactivate() {
@@ -56,6 +65,11 @@ public class User {
             throw new UserAlreadyInactiveException();
         }
         this.active = false;
+        this.deleted_at = Instant.now();
+    }
+
+    public boolean isActive(){
+        return active;
     }
 
     private static void validatePassword(String password) {
@@ -71,6 +85,28 @@ public class User {
         if (!(hasLower && hasUpper && hasDigit && hasSpecial)) {
             throw new PasswordInvalidException();
         }
+    }
+
+    public void updateEmail(String email) {
+        validateEmail(email);
+        this.email = normalizeEmail(email);
+
+    }
+
+    public void updateUsername(String username) {
+        this.username = username;
+    }
+
+    public void updatedAtNew() {
+        this.updated_at = Instant.now();
+    }
+
+    public void addSkills(Set<SkillsEnum> skillsToAdd) {
+        this.skills.addAll(skillsToAdd);
+    }
+
+    public void removeSkills(Set<SkillsEnum> skillsToRemove) {
+        this.skills.removeAll(skillsToRemove);
     }
 
     private static void validateEmail(String email) {
@@ -113,7 +149,19 @@ public class User {
         return level;
     }
 
-    public List<SkillsEnum> getSkills() {
+    public Set<SkillsEnum> getSkills() {
         return skills;
+    }
+
+    public Instant getCreated_at() {
+        return created_at;
+    }
+
+    public Instant getUpdated_at() {
+        return updated_at;
+    }
+
+    public Instant getDeleted_at() {
+        return deleted_at;
     }
 }

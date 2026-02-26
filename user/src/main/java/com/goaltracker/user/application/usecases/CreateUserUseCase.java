@@ -7,10 +7,8 @@ import com.goaltracker.user.domain.User;
 import com.goaltracker.user.domain.exception.EmailAlreadyExistsException;
 import com.goaltracker.user.domain.exception.UsernameAlreadyExistsException;
 
-import java.util.Optional;
-
 public record CreateUserUseCase(UserRepository repository, PasswordHasher passwordHasher) {
-    public Optional<User> execute(CreateUserCommand command){
+    public User execute(CreateUserCommand command){
 
         repository.findByUsername(command.username()).ifPresent(u -> {
             throw new UsernameAlreadyExistsException();

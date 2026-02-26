@@ -4,7 +4,7 @@ import com.goaltracker.user.domain.SkillsEnum;
 
 import java.util.Set;
 
-public record CreateUserCommand(
+public record UpdateUserCommand(
         String username,
         String email,
         String password,
