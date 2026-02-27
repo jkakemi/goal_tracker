@@ -1,4 +1,4 @@
-package com.goaltracker.mission.domain.model;
+package com.goaltracker.mission.domain;
 
 public enum StatusMission {
     PENDENTE,
