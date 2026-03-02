@@ -20,7 +20,7 @@ public class Mission {
     private Instant deletedAt;
 
     public Mission(Long id, UUID userId, String title, Category category, Integer difficulty, LocalDateTime deadline, StatusMission status, Instant createdAt, Instant updatedAt, Instant deletedAt) {
-        if(deadline != null & deadline.isBefore(LocalDateTime.now())){
+        if(id == null && deadline != null && deadline.isBefore(LocalDateTime.now())){
             throw new DomainException("O prazo final da missão não pode estar no passado.");
         }
         if(difficulty == null || difficulty < 1 || difficulty > 5){
@@ -40,7 +40,29 @@ public class Mission {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+    }
 
+    public void update(String title, Category category, Integer difficulty, LocalDateTime deadline) {
+        if(deadline == null || deadline.isBefore(LocalDateTime.now())){
+            throw new DomainException("O novo prazo não pode estar no passado.");
+        }
+        if(difficulty == null || difficulty < 1 || difficulty > 5){
+            throw new DomainException("A dificuldade deve ser entre 1 e 5.");
+        }
+
+        this.title = title;
+        this.category = category;
+        this.difficulty = difficulty;
+        this.deadline = deadline;
+        this.updatedAt = Instant.now();
+    }
+
+    public void delete(){
+        if(this.deletedAt != null){
+            throw new DomainException("Esta missão já foi excluída.");
+        }
+
+        this.deletedAt = Instant.now();
     }
 
     public Long getId() {

@@ -5,7 +5,12 @@ import com.goaltracker.mission.domain.Mission;
 import com.goaltracker.mission.infrastructure.MissionMapper;
 import com.goaltracker.mission.infrastructure.persistence.MissionEntity;
 import com.goaltracker.mission.infrastructure.persistence.MissionRepositoryJpa;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class MissionRepositoryAdapter implements MissionRepository {
@@ -28,5 +33,22 @@ public class MissionRepositoryAdapter implements MissionRepository {
     @Override
     public boolean existsByTitle(String title){
         return missionRepositoryJpa.existsByTitle(title);
+    }
+
+    @Override
+    public Page<Mission> findAll(Pageable pageable){
+        return missionRepositoryJpa.findAll(pageable)
+                .map(missionMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Mission> findById(Long id) {
+        return missionRepositoryJpa.findById(id)
+                .map(missionMapper::toDomain);
+    }
+
+    @Override
+    public Page<Mission> findAllByUserId(UUID userId, Pageable pageable) {
+        return missionRepositoryJpa.findAllByUserId(userId, pageable).map(missionMapper::toDomain);
     }
 }
