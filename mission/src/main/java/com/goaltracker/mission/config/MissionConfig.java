@@ -1,5 +1,6 @@
 package com.goaltracker.mission.config;
 
+import com.goaltracker.mission.application.gateway.MissionEventPublisher;
 import com.goaltracker.mission.application.gateway.MissionRepository;
 import com.goaltracker.mission.application.usecases.*;
 import org.springframework.context.annotation.Bean;
@@ -23,8 +24,8 @@ public class MissionConfig {
     }
 
     @Bean
-    public CompleteMissionUseCase completeMissionUseCase(MissionRepository missionRepository) {
-        return new CompleteMissionUseCase(missionRepository);
+    public CompleteMissionUseCase completeMissionUseCase(MissionRepository missionRepository, MissionEventPublisher missionEventPublisher) {
+        return new CompleteMissionUseCase(missionRepository, missionEventPublisher);
     }
 
     @Bean
