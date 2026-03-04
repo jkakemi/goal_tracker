@@ -1,4 +1,4 @@
-package com.goaltracker.gamification;
+package com.goaltracker.gamification.infrastructure.adapter.event;
 
 import java.util.UUID;
 
