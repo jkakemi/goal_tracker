@@ -2,6 +2,7 @@ package com.goaltracker.user.infrastructure.adapter;
 
 import com.goaltracker.user.application.gateway.UserRepository;
 import com.goaltracker.user.domain.User;
+import com.goaltracker.user.domain.exception.UserNotFoundException;
 import com.goaltracker.user.infrastructure.UserMapper;
 import com.goaltracker.user.infrastructure.persistence.UserEntity;
 import com.goaltracker.user.infrastructure.persistence.UserRepositoryJpa;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public class UserRepositoryAdapter implements UserRepository {
 
 
@@ -26,8 +26,14 @@ public class UserRepositoryAdapter implements UserRepository {
 
     @Override
     public User update(User user) {
-        return null;
-    }
+        UserEntity entity = repository.findById(user.getPublicId())
+                .orElseThrow(UserNotFoundException::new);
+
+        mapper.updateEntity(entity, user);
+
+        UserEntity saved = repository.save(entity);
+
+        return mapper.toDomain(saved);    }
 
     @Override
     public User save(User user) {
@@ -41,7 +47,7 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public Page<User> findAllActiveTrue(Pageable pageable) {
         return repository
-                .findAllActiveTrue(pageable)
+                .findAllByActiveTrue(pageable)
                 .map(mapper::toDomain);
     }
 

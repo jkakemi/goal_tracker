@@ -18,6 +18,8 @@ public record CreateUserUseCase(UserRepository repository, PasswordHasher passwo
             throw new EmailAlreadyExistsException();
         });
 
+        User.validatePassword(command.password());
+
         String passwordHash = passwordHasher.hash(command.password());
 
         User user = User.create(

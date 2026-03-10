@@ -11,23 +11,24 @@ import java.util.Set;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
+    private UUID public_id;
     private String username;
     private String email;
     private String password;
     private double xpTotal;
     private int level;
     private Set<SkillsEnum> skills = new HashSet<>();
+    private Role role;
     private boolean active;
     private Instant created_at;
     private Instant updated_at;
     private Instant deleted_at;
 
 
-    public User(UUID id, String username, String email, String password, double xpTotal,
+    public User(UUID public_id, String username, String email, String password, double xpTotal,
                 int level, Set<SkillsEnum> skills, boolean active, Instant created_at,
-                Instant updated_at, Instant deleted_at) {
-        this.id = id;
+                Instant updated_at, Instant deleted_at, Role role) {
+        this.public_id = public_id;
         this.username = username;
         this.email = email;
         this.password = password;
@@ -35,29 +36,32 @@ public class User {
         this.level = level;
         this.skills = skills;
         this.active = active;
+        this.role = role;
     }
 
-    public User(UUID id, String username, String email, Set<SkillsEnum> skills, String password, Instant created_at) {
-        this.id = id;
+    public User(UUID public_id, String username, String email, Set<SkillsEnum> skills, String password, Instant created_at) {
+        this.public_id = public_id;
         this.username = username;
         this.email = email;
         this.skills = skills;
         this.password = password;
         this.active = true;
         this.created_at = created_at;
+        this.role = Role.USER;
     }
 
     public static User create(String username, String email, String password, Set<SkillsEnum> skills) {
-        validateNotNullFields(email, username);
+        validateNotNullFields(email, username, password);
         validateEmail(email);
-        validatePassword(password);
 
-        return new User(UUID.randomUUID(),
+        return new User(
+                UUID.randomUUID(),
+                username,
                 normalizeEmail(email),
-                email,
                 skills,
                 password,
-                Instant.now());
+                Instant.now()
+        );
     }
 
     public void deactivate() {
@@ -68,11 +72,15 @@ public class User {
         this.deleted_at = Instant.now();
     }
 
-    public boolean isActive(){
+    public boolean userIsActive(){
         return active;
     }
 
-    private static void validatePassword(String password) {
+    public void addXP(double xp){
+        this.xpTotal += xp;
+    }
+
+    public static void validatePassword(String password) {
         if (password == null || password.isBlank() || password.length() < 8) {
             throw new PasswordInvalidException();
         }
@@ -109,14 +117,20 @@ public class User {
         this.skills.removeAll(skillsToRemove);
     }
 
+    public void ensureCanAuthenticate() {
+        if (!userIsActive()) {
+            throw new UserAlreadyInactiveException();
+        }
+    }
+
     private static void validateEmail(String email) {
         if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             throw new InvalidEmailException();
         }
     }
 
-    private static void validateNotNullFields(String email, String username){
-        if (email == null || username == null){
+    private static void validateNotNullFields(String email, String username, String password){
+        if (email == null || username == null || password == null){
             throw new FieldsNullException();
         }
     }
@@ -125,8 +139,8 @@ public class User {
         return email.toLowerCase().trim();
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getPublicId() {
+        return public_id;
     }
 
     public String getUsername() {
@@ -164,4 +178,9 @@ public class User {
     public Instant getDeleted_at() {
         return deleted_at;
     }
+
+    public Role getRole() {
+        return role;
+    }
+
 }

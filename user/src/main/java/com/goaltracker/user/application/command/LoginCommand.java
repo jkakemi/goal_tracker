@@ -1,8 +1,7 @@
 package com.goaltracker.user.application.command;
 
-public record UpdateUserCommand(
+public record LoginCommand(
         String username,
-        String email,
         String password
 ) {
 }

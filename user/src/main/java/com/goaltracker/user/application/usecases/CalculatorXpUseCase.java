@@ -4,15 +4,20 @@ import com.goaltracker.user.application.gateway.UserRepository;
 import com.goaltracker.user.domain.User;
 import com.goaltracker.user.domain.exception.UserNotFoundException;
 
-public record GetUserUseCase(UserRepository repository) {
+import java.util.UUID;
 
-    public User execute(String username) {
-        User user = repository.findByUsername(username)
+public record CalculatorXpUseCase(UserRepository repository) {
+
+    public User execute(UUID userId, double xp) {
+        User user = repository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
         if(!user.userIsActive()){
             throw new UserNotFoundException();
         }
+
+        user.addXP(xp);
+        repository.update(user);
 
         return user;
     }

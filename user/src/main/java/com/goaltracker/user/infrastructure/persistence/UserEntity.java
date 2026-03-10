@@ -1,5 +1,6 @@
 package com.goaltracker.user.infrastructure.persistence;
 
+import com.goaltracker.user.domain.Role;
 import com.goaltracker.user.domain.SkillsEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.util.UUID;
         name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_users_public_id", columnNames = "public_id"),
-                @UniqueConstraint(name = "uk_users_cpf", columnNames = "cpf"),
+                @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
                 @UniqueConstraint(name = "uk_users_email", columnNames = "email")
         }
 )
@@ -42,20 +43,24 @@ public class UserEntity {
 
     @Column(nullable = false)
     private String email;
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     private double xpTotal;
     private int level;
     private String skills;
     private boolean active;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     private Instant created_at;
     private Instant updated_at;
     private Instant deleted_at;
 
     public UserEntity(UUID publicId, String username, String email, String password,
                       double xpTotal, int level, String skills, boolean active,
-                      Instant created_at, Instant updated_at, Instant deleted_at) {
+                      Instant created_at, Instant updated_at, Instant deleted_at, Role role) {
         this.publicId = publicId;
         this.username = username;
         this.email = email;
@@ -67,6 +72,7 @@ public class UserEntity {
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.deleted_at = deleted_at;
+        this.role = role;
     }
 
     @PrePersist
